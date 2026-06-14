@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLZ - Minhas Mensagens</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4s6-TDrJrquj1srcs3JWAYFUxQTxNW-I",
+            authDomain: "mensagens-anonimas-a8cb6.firebaseapp.com",
+            projectId: "mensagens-anonimas-a8cb6",
+            storageBucket: "mensagens-anonimas-a8cb6.firebasestorage.app",
+            messagingSenderId: "216076770135",
+            appId: "1:216076770135:web:7e566b19076fe262d33c12"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // CAPTURA O NOME DA URL OU USA "nlz"
+        const urlParams = new URLSearchParams(window.location.search);
+        const usuarioAtivo = urlParams.get('user') || "nlz"; 
+
+        document.getElementById('nome-perfil').innerText = "@" + usuarioAtivo;
+
+        onValue(ref(db, 'mensagens/' + usuarioAtivo), (snapshot) => {
+            const container = document.getElementById('lista-mensagens');
+            container.innerHTML = "";
+            let temMensagem = false;
+
+            snapshot.forEach((childSnapshot) => {
+                temMensagem = true;
+                const dados = childSnapshot.val();
+                const card = document.createElement('div');
+                card.className = 'msg-card';
+                card.innerHTML = `
+                    <p class="msg-text">"${dados.texto}"</p>
+                    <button class="btn-pista" onclick="abrirJanelaPistas()">👁️ Quem enviou?</button>
+                `;
+                container.insertBefore(card, container.firstChild);
+            });
+
+            if(!temMensagem) {
+                container.innerHTML = "<p style='text-align:center;color:#9ca3af;margin-top:40px;'>Ainda não recebeste mensagens. Partilha o teu link!</p>";
+            }
+        });
+
+        // Funções globais para o modal
+        window.abrirJanelaPistas = () => document.getElementById('janela-pagamento').style.display = 'flex';
+        window.fecharJanelaPistas = () => document.getElementById('janela-pagamento').style.display = 'none';
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: #f3f4f6; color: #111827; padding: 20px; }
+        .container { max-width: 450px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 25px; margin-top: 10px; }
+        .title { font-size: 26px; font-weight: 800; color: #dd2a7b; }
+        .msg-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+        }
+        .msg-text { font-size: 16px; font-weight: 600; color: #374151; line-height: 1.4; }
+        .btn-pista {
+            display: inline-block;
+            margin-top: 12px;
+            background: linear-gradient(90deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .modal-pay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 25px;
+            padding: 25px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .modal-title { font-size: 20px; font-weight: 800; color: #111827; margin-bottom: 10px; }
+        .payment-methods {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 14px;
+        }
+        .btn-whatsapp {
+            background: #25d366;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 15px;
+            width: 100%;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: block;
+            margin-top: 10px;
+        }
+        .btn-fechar {
+            color: #6b7280;
+            font-size: 13px;
+            cursor: pointer;
+            margin-top: 15px;
+            display: inline-block;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="title">NLZ ⚡ Caixa de Entrada</div>
+            <p id="nome-perfil" style="color: #dd2a7b; font-weight: 800; font-size: 20px; margin-top: 4px;">@carregando</p>
+        </header>
+
+        <div id="lista-mensagens"></div>
+    </div>
+
+    <div class="modal-pay" id="janela-pagamento">
+        <div class="modal-content">
+            <div class="modal-title">Desbloquear Pistas Mestre! 🔍</div>
+            <p style="font-size: 13px; color: #4b5563;">Descobre a localização e detalhes de quem te enviou esta mensagem!</p>
+            <div class="payment-methods">
+                <p style="font-weight: bold; margin-bottom: 8px; color: #b45309; font-size: 15px;">Taxa: 20 MT</p>
+                <p><strong>🇲🇿 M-Pesa:</strong> 845381090</p>
+                <p><strong>🇲🇿 e-Mola:</strong> 871484209</p>
+            </div>
+            <a href="https://wa.me/258845381090?text=Olá!%20Fiz%20o%20pagamento%20de%2020MT%20para%20saber%20a%20pista." target="_blank" class="btn-whatsapp">
+                📱 Enviar Comprovativo no WhatsApp
+            </a>
+            <div class="btn-fechar" onclick="fecharJanelaPistas()">Voltar à Caixa</div>
+        </div>
+    </div>
+</body>
+</html>

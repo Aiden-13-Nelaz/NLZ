@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Link Anónimo - NLZ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4s6-TDrJrquj1srcs3JWAYFUxQTxNW-I",
+            authDomain: "mensagens-anonimas-a8cb6.firebaseapp.com",
+            projectId: "mensagens-anonimas-a8cb6",
+            storageBucket: "mensagens-anonimas-a8cb6.firebasestorage.app",
+            messagingSenderId: "216076770135",
+            appId: "1:216076770135:web:7e566b19076fe262d33c12"
+        };
+        initializeApp(firebaseConfig);
+    </script>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body {
+            background: linear-gradient(135deg, #fe2c55 0%, #dd2a7b 50%, #f1048e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .ngl-card {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            border-radius: 30px;
+            padding: 35px 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .logo-title { font-size: 42px; font-weight: 800; color: #111827; margin-bottom: 5px; letter-spacing: -1px; }
+        .subtitle { font-size: 15px; color: #6b7280; margin-bottom: 25px; line-height: 1.4; }
+        
+        .input-container {
+            display: flex;
+            align-items: center;
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 0 15px;
+            margin-bottom: 20px;
+        }
+        .prefix { color: #dd2a7b; font-weight: 800; font-size: 18px; margin-right: 2px; }
+        input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 15px 5px;
+            font-size: 16px;
+            font-weight: 600;
+            outline: none;
+            color: #111827;
+        }
+        
+        .btn-gerar {
+            width: 100%;
+            background: #111827;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn-gerar:active { transform: scale(0.98); }
+        
+        .resultado-box {
+            margin-top: 25px;
+            background: #f0fdf4;
+            border: 1px dashed #22c55e;
+            padding: 15px;
+            border-radius: 15px;
+            display: none;
+        }
+        .link-texto {
+            font-size: 14px;
+            color: #166534;
+            font-weight: 700;
+            word-break: break-all;
+            margin-bottom: 12px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #d1fae5;
+        }
+        .btn-copiar {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .links-ajuda { margin-top: 20px; font-size: 13px; }
+        .links-ajuda a { color: #dd2a7b; text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="ngl-card">
+        <div class="logo-title">NLZ ⚡</div>
+        <p class="subtitle">Cria o teu link personalizado abaixo e descobre o que os teus amigos pensam de ti em segredo!</p>
+        
+        <div class="input-container">
+            <span class="prefix">@</span>
+            <input type="text" id="nome-utilizador" placeholder="teunome" required>
+        </div>
+        
+        <button class="btn-gerar" onclick="gerarLink()">Criar Link NLZ</button>
+
+        <div class="resultado-box" id="resultado">
+            <p style="font-size: 14px; font-weight: bold; color: #166534; margin-bottom: 8px;">O teu link NLZ está pronto! 🥳</p>
+            <div class="link-texto" id="link-gerado"></div>
+            <button class="btn-copiar" id="btn-copiar-txt" onclick="copiarLink()">Copiar Link</button>
+            
+            <div class="links-ajuda">
+                <a id="link-ver-inbox" href="#">👉 Ver a Minha Caixa NLZ</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let linkCompletoEnvio = "";
+
+        function gerarLink() {
+            const nome = document.getElementById('nome-utilizador').value.trim().toLowerCase();
+            
+            if (nome === "") {
+                alert("Por favor, introduz um nome válido!");
+                return;
+            }
+
+            const urlBase = window.location.href.split('?')[0].substring(0, window.location.href.lastIndexOf('/') + 1);
+            
+            linkCompletoEnvio = `${urlBase}enviar.html?para=${nome}`;
+            const linkInbox = `${urlBase}ver-mensagens.html?user=${nome}`;
+
+            document.getElementById('link-gerado').innerText = linkCompletoEnvio;
+            document.getElementById('link-ver-inbox').href = linkInbox;
+            document.getElementById('resultado').style.display = 'block';
+        }
+
+        function copiarLink() {
+            navigator.clipboard.writeText(linkCompletoEnvio);
+            document.getElementById('btn-copiar-txt').innerText = "Copiado! ✅";
+        }
+    </script>
+</body>
+</html>

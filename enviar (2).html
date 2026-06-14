@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLZ - Enviar Mensagem Anónima</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4s6-TDrJrquj1srcs3JWAYFUxQTxNW-I",
+            authDomain: "mensagens-anonimas-a8cb6.firebaseapp.com",
+            projectId: "mensagens-anonimas-a8cb6",
+            storageBucket: "mensagens-anonimas-a8cb6.firebasestorage.app",
+            messagingSenderId: "216076770135",
+            appId: "1:216076770135:web:7e566b19076fe262d33c12"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Captura o utilizador da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let utilizadorAlvo = (urlParams.get('para') || urlParams.get('PARA') || "nlz_user").trim().toLowerCase();
+        
+        document.getElementById('user-badge').innerText = `@${utilizadorAlvo}`;
+        document.getElementById('num-cliques').innerText = Math.floor(Math.random() * (280 - 110 + 1)) + 110;
+
+        // Função de Envio ajustada para Firebase v12
+        window.enviarMensagemFormulario = function() {
+            const input = document.getElementById('mensagem');
+            const botao = document.getElementById('btn-principal-texto');
+            
+            if (input.value.trim() === "") {
+                alert("Escreve algo primeiro antes de enviar!");
+                return;
+            }
+
+            botao.disabled = true;
+            botao.innerText = "A enviar...";
+
+            push(ref(db, 'mensagens/' + utilizadorAlvo), {
+                texto: input.value,
+                timestamp: Date.now()
+            }).then(() => {
+                alert("Mensagem secreta enviada com sucesso! 🔥");
+                input.value = "";
+                botao.disabled = false;
+                botao.innerText = "Recebe as tuas próprias mensagens!";
+                botao.onclick = () => window.location.href = "index.html";
+            }).catch(() => {
+                alert("Erro ao enviar! Tenta novamente.");
+                botao.disabled = false;
+                botao.innerText = "Enviar Anónimamente!";
+            });
+        };
+
+        window.gerarIdeiaAnónima = function() {
+            const sugestoes = ["o que vais fazer mais tarde?", "diz-me um segredo teu...", "qual é a tua maior loucura?", "quem é a pessoa que mais gostas aqui?", "diz algo que nunca me dirias na cara!"];
+            document.getElementById('mensagem').value = sugestoes[Math.floor(Math.random() * sugestoes.length)];
+        };
+    </script>
+
+    <style>
+        /* Mantive o teu CSS original intacto */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: linear-gradient(180deg, #f43f5e 0%, #ea580c 100%); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 20px 30px 20px; overflow-x: hidden; }
+        .main-content { width: 100%; max-width: 380px; display: flex; flex-direction: column; align-items: center; }
+        .ngl-container { width: 100%; background: white; border-radius: 30px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); margin-bottom: 15px; }
+        .card-header { background: #ffffff; padding: 16px 20px 10px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+        .profile-pic { width: 42px; height: 42px; background: #e5e7eb; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .user-name { font-size: 15px; font-weight: 700; color: #111827; }
+        .user-action { font-size: 13px; color: #4b5563; font-weight: 500; margin-top: 1px; }
+        .message-area { background: linear-gradient(180deg, #ffccd5 0%, #ffb3c1 100%); padding: 24px 20px; position: relative; min-height: 180px; display: flex; flex-direction: column; }
+        textarea { width: 100%; height: 100px; border: none; background: transparent; font-size: 18px; font-weight: 600; color: #dd2a7b; resize: none; outline: none; }
+        .dice-btn { position: absolute; bottom: 20px; right: 20px; background: rgba(255, 255, 255, 0.8); border: 1px solid rgba(0,0,0,0.05); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+        .qa-lock { display: flex; align-items: center; gap: 6px; color: rgba(255, 255, 255, 0.85); font-size: 14px; font-weight: 500; margin-top: 5px; }
+        .bottom-content { width: 100%; max-width: 380px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: auto; }
+        .btn-cta { width: 100%; background: #000000; color: white; border: none; border-radius: 35px; padding: 18px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.1s; text-decoration: none; display: inline-block; }
+        .footer-terms { font-size: 12px; color: rgba(255, 255, 255, 0.5); font-weight: 500; display: flex; gap: 15px; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="main-content">
+        <div class="ngl-container">
+            <div class="card-header">
+                <div class="profile-pic">👤</div>
+                <div class="header-info">
+                    <div class="user-name" id="user-badge">@carregando...</div>
+                    <div class="user-action">manda-me mensagens anónimas</div>
+                </div>
+            </div>
+            <form id="form-ngl" class="message-area">
+                <textarea id="mensagem" placeholder="o que vais fazer mais tarde?" required></textarea>
+                <div class="dice-btn" onclick="gerarIdeiaAnónima()" title="Mudar pergunta">🎲</div>
+            </form>
+        </div>
+        <div class="qa-lock"><span>🔒</span> q&a anónimo</div>
+    </div>
+    <div class="bottom-content">
+        <div class="click-counter">👇 <span id="num-cliques">215</span> amigos clicaram no botão 👇</div>
+        <button type="button" onclick="enviarMensagemFormulario()" class="btn-cta" id="btn-principal-texto">Enviar Anónimamente!</button>
+        <div class="footer-terms"><span>Terms</span> <span>Privacy</span></div>
+    </div>
+</body>
+</html>
